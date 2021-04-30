@@ -31,6 +31,25 @@ use std::{fmt, io, marker::PhantomData, str::FromStr};
 
 pub use regex_automata::Error;
 
+pub trait PatternBuilder<S = usize, A = DenseDFA<Vec<S>, S>>
+where
+    S: StateID,
+    A: DFA<ID = S>,
+{
+    fn build_patern(&self, pattern: &str) -> Result<Pattern<S, A>, Error>;
+}
+
+impl PatternBuilder<usize, DenseDFA<Vec<usize>, usize>> for dense::Builder {
+    fn build_patern(
+        &self,
+        pattern: &str,
+    ) -> Result<Pattern<usize, DenseDFA<Vec<usize>, usize>>, Error> {
+        let automaton = self.build(pattern)?;
+        let p = Pattern { automaton };
+        Ok(p)
+    }
+}
+
 /// A compiled match pattern that can match multipe inputs, or return a
 /// [`Matcher`] that matches a single input.
 ///
